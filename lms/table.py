@@ -39,6 +39,7 @@ class T_Book(GenericBase):
     __tablename__ = 'book00'
     GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
     book_title = Column(String(100), nullable=False)
+    book_code = Column(String(50), nullable=False)
     book_description = Column(TEXT)
 
     createdate = Column(DateTime, default=func.now())
