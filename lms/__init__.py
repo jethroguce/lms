@@ -22,3 +22,8 @@ Base = declarative_base()
 def index():
     return render_template('index.html')
 
+
+@app.route('/login')
+def login():
+    return 'Lost'
+
