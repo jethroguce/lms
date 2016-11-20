@@ -2,6 +2,9 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_restful import Api
 from flask_login import LoginManager, logout_user
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -13,6 +16,7 @@ app.config.from_object('config')
 
 api = Api(app)
 login_manager = LoginManager(app)
+admin = Admin(app, name='lms', template_mode='bootstrap3')
 
 
 Base = declarative_base()
