@@ -2,15 +2,15 @@ import datetime
 
 from decimal import Decimal
 
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Float, Integer, String, Boolean, DateTime, CHAR, TEXT
+from sqlalchemy import Integer, String, Boolean, DateTime, TEXT, LargeBinary
 from sqlalchemy import Column, Sequence, Index, ForeignKey, func
+
+from lms import Base
 
 
 class GenericBase(object):
     id = Column(Integer)
-    createdate = Column(DateTime, default=func.now())
 
     def as_dict(self):
         return ({c.name: getattr(self, c.name) for c in self.__table__.columns})
@@ -35,13 +35,85 @@ class GenericBase(object):
         return retval
 
 
-class T_Book(GenericBase):
-    __tablename__ = 'book00'
+class Department(GenericBase, Base):
+    __tablename__ = 'department00'
     GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
-    book_title = Column(String(100), nullable=False)
-    book_code = Column(String(50), nullable=False)
-    book_description = Column(TEXT)
+    name = Column(String(100), nullable=False)
+    books = relationship('Book')
 
     createdate = Column(DateTime, default=func.now())
     lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
     active = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return self.name
+
+
+class Book(GenericBase, Base):
+    __tablename__ = 'book00'
+    GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
+    title = Column(String(300), nullable=False)
+    code = Column(String(50), nullable=False)
+    description = Column(TEXT)
+
+    department00_id = Column(Integer, ForeignKey(Department.__tablename__ + '.id'))
+    department = relationship('Department', foreign_keys=[department00_id])
+    year = Column(Integer)
+
+    authors = relationship('BookAuthor')
+    content = relationship('BookContent')
+
+    createdate = Column(DateTime, default=func.now())
+    lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
+    active = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return self.title
+
+
+class BookContent(GenericBase, Base):
+    __tablename__ = 'book01'
+    GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
+
+    book00_id = Column(Integer, ForeignKey(Book.__tablename__ + '.id'))
+    book = relationship('Book', foreign_keys=[book00_id])
+
+    content = Column(LargeBinary)
+
+    createdate = Column(DateTime, default=func.now())
+    lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
+    active = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return self.content
+
+
+class Author(GenericBase, Base):
+    __tablename__ = 'author00'
+    GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
+    name = Column(String(200), nullable=False)
+
+    books = relationship('BookAuthor')
+
+    createdate = Column(DateTime, default=func.now())
+    lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
+    active = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return self.name
+
+
+class BookAuthor(GenericBase, Base):
+    __tablename__ = 'book_author'
+    GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
+
+    book00_id = Column(Integer, ForeignKey(Book.__tablename__ + '.id'))
+    book = relationship('Book', foreign_keys=[book00_id])
+
+    author00_id = Column(Integer, ForeignKey(Author.__tablename__ + '.id'))
+    author = relationship('Author', foreign_keys=[author00_id])
+
+    createdate = Column(DateTime, default=func.now())
+    lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
+    active = Column(Boolean, default=True)
+
