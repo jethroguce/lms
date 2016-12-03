@@ -17,14 +17,22 @@
 
 <!-- Projects Row -->
 <div class="row">
-  {% for book in department.books %}
-  <div class="col-sm-4 col-md-3">
+  {% for book in department.books[-6:] %}
+  <div class="col-sm-12 col-md-6">
     <div class="thumbnail">
-      <img class="img-responsive" src="http://placehold.it/750x450" alt="">
-      <div class="caption">
-        <h3>{{book.title}}</h3>
+      <div class="col-md-4">
+        {% if book.image %}
+        <img class="img-responsive" src="{{book.image}}" alt="">
+        {% else %}
+        <img class="img-responsive" src="{{url_for('static', filename='images/placeholder150x200.png')}}" alt="">
+        {% endif %}
+      </div>
+      <div class="col-md-8 caption no-padding">
+        <h3 style="margin:0px;">{{book.title}}</h3>
         <p>{{book.description}}</p>
         <p><a href="#" class="btn btn-primary" role="button">View</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+      </div>
+      <div class="clearfix">
       </div>
     </div>
   </div>

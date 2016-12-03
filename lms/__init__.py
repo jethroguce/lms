@@ -39,7 +39,7 @@ except:
     print("DB connection failure")
     sys.exit(1)
 
-Session = scoped_session(sessionmaker(bind=engine))
+Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
 
