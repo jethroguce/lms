@@ -117,3 +117,29 @@ class BookAuthor(GenericBase, Base):
     lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
     active = Column(Boolean, default=True)
 
+
+class User(GenericBase, Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String(100))
+    last_name = Column(String(100))
+    login = Column(String(80), unique=True)
+    email = Column(String(120))
+    password = Column(String(100))
+
+    # Flask-Login integration
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+
+    # Required for administrative interface
+    def __unicode__(self):
+        return self.username

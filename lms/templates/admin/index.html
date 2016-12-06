@@ -1,0 +1,45 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+{{ super() }}
+<div class="row-fluid">
+
+    <div>
+        {% if current_user.is_authenticated %}
+        <h1>SLSU Library</h1>
+        <p class="lead">
+            Authentication
+        </p>
+        <p>
+            Welcome this is for Administrator Login, here you can add, edit, and delete records
+        </p>
+        {% else %}
+        <div class="center-block" style="margin-left: auto;width: 300px;">
+            <form method="POST" action="">
+                {{ form.hidden_tag() if form.hidden_tag }}
+                {% for f in form if f.type != 'CSRFTokenField' %}
+                <div class="form-group">
+                    <label for="{{ f.id }}" class="control-label">{{ f.label }}</label>
+                    {{ f(class_='form-control') }}
+                    {% if f.errors %}
+                    <ul>
+                        {% for e in f.errors %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <div class="form-actions">
+                    <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                </div>
+            </form>
+            <hr/>
+            {{ link | safe }}
+        </div>
+        {% endif %}
+    </div>
+    <div class="center-block text-center" style="margin-left: auto;width: 300px;">
+        <a class="btn btn-default" href="{{url_for('index')}}"><i class="icon-arrow-left icon-white"></i> Back to Dashboard</a>
+    </div>
+</div>
+{% endblock body %}
