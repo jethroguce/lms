@@ -1,3 +1,6 @@
+
+import os
+import os.path as op
 import datetime
 
 from decimal import Decimal
@@ -5,8 +8,9 @@ from decimal import Decimal
 from sqlalchemy.orm import relationship
 from sqlalchemy import Integer, String, Boolean, DateTime, TEXT, LargeBinary
 from sqlalchemy import Column, Sequence, Index, ForeignKey, func
+from sqlalchemy.event import listens_for
 
-from lms import Base
+from lms import Base, file_path
 
 
 class GenericBase(object):
@@ -36,7 +40,7 @@ class GenericBase(object):
 
 
 class Department(GenericBase, Base):
-    __tablename__ = 'department00'
+    __tablename__ = 'department'
     GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
     name = Column(String(100), nullable=False)
     books = relationship('Book')
@@ -50,7 +54,7 @@ class Department(GenericBase, Base):
 
 
 class Book(GenericBase, Base):
-    __tablename__ = 'book00'
+    __tablename__ = 'book'
     GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
     title = Column(String(300), nullable=False)
     code = Column(String(50), nullable=False)
@@ -59,9 +63,9 @@ class Book(GenericBase, Base):
     department00_id = Column(Integer, ForeignKey(Department.__tablename__ + '.id'))
     department = relationship('Department', foreign_keys=[department00_id])
     year = Column(Integer)
-
+    cover = Column(String(128))
+    path = Column(String(128))
     authors = relationship('BookAuthor')
-    content = relationship('BookContent')
 
     createdate = Column(DateTime, default=func.now())
     lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -71,25 +75,8 @@ class Book(GenericBase, Base):
         return self.title
 
 
-class BookContent(GenericBase, Base):
-    __tablename__ = 'book01'
-    GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
-
-    book00_id = Column(Integer, ForeignKey(Book.__tablename__ + '.id'))
-    book = relationship('Book', foreign_keys=[book00_id])
-
-    content = Column(LargeBinary)
-
-    createdate = Column(DateTime, default=func.now())
-    lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
-    active = Column(Boolean, default=True)
-
-    def __repr__(self):
-        return self.content
-
-
 class Author(GenericBase, Base):
-    __tablename__ = 'author00'
+    __tablename__ = 'author'
     GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
     name = Column(String(200), nullable=False)
 
@@ -143,3 +130,21 @@ class User(GenericBase, Base):
     # Required for administrative interface
     def __unicode__(self):
         return self.username
+
+
+# Delete hooks for models, delete files if models are getting deleted
+@listens_for(Book, 'after_delete')
+def del_file(mapper, connection, target):
+    if target.path:
+        try:
+            os.remove(op.join(file_path, target.path))
+        except OSError:
+            # Don't care if was not deleted because it does not exist
+            pass
+
+    if target.cover:
+        try:
+            os.remove(op.join(file_path, target.cover))
+        except OSError:
+            # Don't care if was not deleted because it does not exist
+            pass

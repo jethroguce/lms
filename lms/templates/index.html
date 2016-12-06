@@ -19,10 +19,10 @@
 <div class="row">
   {% for book in department.books[-6:] %}
   <div class="col-sm-12 col-md-6">
-    <div class="thumbnail">
+    <div class="thumbnail" style="min-height: 200px;">
       <div class="col-md-4">
-        {% if book.image %}
-        <img class="img-responsive" src="{{book.image}}" alt="">
+        {% if book.cover %}
+        <img class="img-responsive" src="{{book.cover}}" style="max-height: 200px;max-width: 150px;" alt="{{book.title}}">
         {% else %}
         <img class="img-responsive" src="{{url_for('static', filename='images/placeholder150x200.png')}}" alt="">
         {% endif %}
@@ -30,7 +30,7 @@
       <div class="col-md-8 caption no-padding">
         <h3 style="margin:0px;">{{book.title}}</h3>
         <p>{{book.description}}</p>
-        <p><a href="#" class="btn btn-primary" role="button">View</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+        <p><a href="{{url_for('static', filename=book.path)}}" class="btn btn-primary" role="button" target="_blank">View</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
       </div>
       <div class="clearfix">
       </div>

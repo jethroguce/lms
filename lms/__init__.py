@@ -1,4 +1,6 @@
 
+import os
+import os.path as op
 import sys
 
 from flask import Flask, render_template, url_for, request, redirect
@@ -10,6 +12,8 @@ from wtforms import form, fields, validators
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import helpers, expose
+from flask_admin import form as admin_form
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -22,6 +26,13 @@ app.config.from_object('config')
 
 api = Api(app)
 login_manager = LoginManager(app)
+
+# Create directory for file fields to use
+file_path = op.join(op.dirname(__file__), 'static', 'upload')
+try:
+    os.mkdir(file_path)
+except OSError:
+    pass
 
 conn_str = "mysql+pymysql://{0}:{1}@{2}/{3}".format(
     app.config['DB_USER'],
@@ -183,6 +194,30 @@ class MyAdminIndexView(AdminIndexView):
         return redirect(url_for('.index'))
 
 
+# Administrative views
+class FileView(MyModelView):
+    # Override form field to use Flask-Admin FileUploadField
+    form_overrides = {
+        'path': admin_form.FileUploadField,
+        'cover': admin_form.FileUploadField,
+    }
+
+    # Pass additional parameters to 'path' to FileUploadField constructor
+    form_args = {
+        'path': {
+            'label': 'File',
+            'base_path': file_path,
+            'allow_overwrite': False
+        },
+        'cover': {
+            'label': 'Cover',
+            'base_path': file_path,
+            'allow_overwrite': False
+        },
+    }
+
+
+
 admin = Admin(app, name='SLSU Admin', index_view=MyAdminIndexView(),
                 base_template='my_master.html',
                 template_mode='bootstrap3')
@@ -190,6 +225,5 @@ admin_db_session = Session()
 
 admin.add_view(MyModelView(Department, admin_db_session))
 admin.add_view(MyModelView(Author, admin_db_session))
-admin.add_view(MyModelView(Book, admin_db_session))
-admin.add_view(MyModelView(BookContent, admin_db_session))
+admin.add_view(FileView(Book, admin_db_session))
 admin.add_view(MyModelView(BookAuthor, admin_db_session))

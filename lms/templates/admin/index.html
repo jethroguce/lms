@@ -5,13 +5,15 @@
 
     <div>
         {% if current_user.is_authenticated %}
-        <h1>SLSU Library</h1>
-        <p class="lead">
-            Authentication
-        </p>
-        <p>
-            Welcome this is for Administrator Login, here you can add, edit, and delete records
-        </p>
+        <div class="class="text-center">
+            <h1>SLSU Library</h1>
+            <p class="lead">
+                Admin
+            </p>
+            <p>
+                Welcome this is for Administrator Login, here you can add, edit, and delete records
+            </p>
+        </div>
         {% else %}
         <div class="center-block" style="margin-left: auto;width: 300px;">
             <form method="POST" action="">
