@@ -65,6 +65,7 @@ class Book(GenericBase, Base):
     year = Column(Integer)
     cover = Column(String(128))
     authors = relationship('BookAuthor')
+    files = relationship('File')
 
     createdate = Column(DateTime, default=func.now())
     lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())

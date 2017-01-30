@@ -29,8 +29,12 @@
       </div>
       <div class="col-md-8 caption no-padding">
         <h3 style="margin:0px;">{{book.title}}</h3>
-        <p>{{book.description}}</p>
-        <p><a href="{{url_for('static', filename=book.path)}}" class="btn btn-primary" role="button" target="_blank">View</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+        {% for author in book.authors %}
+        <span>{{author.author.name}}</span><br/>
+        {% endfor %}
+        {% for file in book.files%}
+        <a href="{{url_for('static', filename=file.path)}}" class="btn btn-primary" role="button" target="_blank">View</a>
+        {% endfor %}
       </div>
       <div class="clearfix">
       </div>
