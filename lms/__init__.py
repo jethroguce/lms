@@ -2,6 +2,7 @@
 import os
 import os.path as op
 import sys
+import time
 
 from flask import Flask, render_template, url_for, request, redirect
 from flask_restful import Api
@@ -28,6 +29,7 @@ api = Api(app)
 login_manager = LoginManager(app)
 
 # Create directory for file fields to use
+static_path = op.join(op.dirname(__file__), 'static', 'upload')
 file_path = op.join(op.dirname(__file__), 'static', 'upload')
 try:
     os.mkdir(file_path)
@@ -194,12 +196,17 @@ class MyAdminIndexView(AdminIndexView):
         return redirect(url_for('.index'))
 
 
+def prefix_name(obj, file_data):
+    ts = time.time()
+    parts = op.splitext(file_data.filename)
+    return '{}{}'.format(ts, parts[1])
+
 # Administrative views
 class FileView(MyModelView):
     # Override form field to use Flask-Admin FileUploadField
     form_overrides = {
         'path': admin_form.FileUploadField,
-        'cover': admin_form.FileUploadField,
+        'cover': admin_form.ImageUploadField,
     }
 
     # Pass additional parameters to 'path' to FileUploadField constructor
@@ -207,13 +214,19 @@ class FileView(MyModelView):
         'path': {
             'label': 'File',
             'base_path': file_path,
-            'allow_overwrite': False
+            'relative_path': 'upload/',
+            'allow_overwrite': False,
+            'namegen': prefix_name
         },
         'cover': {
             'label': 'Cover',
             'base_path': file_path,
-            'allow_overwrite': False
-        },
+            'relative_path': 'upload/',
+            'url_relative_path': 'upload/',
+            'allow_overwrite': False,
+            'namegen': prefix_name,
+            'thumbnail_size': (150, 200, False)
+        }
     }
 
 

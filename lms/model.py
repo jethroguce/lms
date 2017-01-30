@@ -64,7 +64,6 @@ class Book(GenericBase, Base):
     department = relationship('Department', foreign_keys=[department00_id])
     year = Column(Integer)
     cover = Column(String(128))
-    path = Column(String(128))
     authors = relationship('BookAuthor')
 
     createdate = Column(DateTime, default=func.now())
@@ -73,6 +72,20 @@ class Book(GenericBase, Base):
 
     def __repr__(self):
         return self.title
+
+
+class File(GenericBase, Base):
+    __tablename__ = 'file'
+    GenericBase.id = Column(Integer, Sequence(__tablename__ + '_id_seq'), primary_key=True)
+    book00_id = Column(Integer, ForeignKey(Book.__tablename__ + '.id'))
+    book = relationship('Book', foreign_keys=[book00_id])
+
+    file_type = Column(String(20))
+    path = Column(String(128))
+
+    createdate = Column(DateTime, default=func.now())
+    lastupdate = Column(DateTime, default=func.now(), onupdate=func.now())
+    active = Column(Boolean, default=True)
 
 
 class Author(GenericBase, Base):
@@ -132,19 +145,19 @@ class User(GenericBase, Base):
         return self.username
 
 
-# Delete hooks for models, delete files if models are getting deleted
-@listens_for(Book, 'after_delete')
-def del_file(mapper, connection, target):
-    if target.path:
-        try:
-            os.remove(op.join(file_path, target.path))
-        except OSError:
-            # Don't care if was not deleted because it does not exist
-            pass
+# # Delete hooks for models, delete files if models are getting deleted
+# @listens_for(Book, 'after_delete')
+# def del_file(mapper, connection, target):
+#     if target.path:
+#         try:
+#             os.remove(op.join(file_path, target.path))
+#         except OSError:
+#             # Don't care if was not deleted because it does not exist
+#             pass
 
-    if target.cover:
-        try:
-            os.remove(op.join(file_path, target.cover))
-        except OSError:
-            # Don't care if was not deleted because it does not exist
-            pass
+#     if target.cover:
+#         try:
+#             os.remove(op.join(file_path, target.cover))
+#         except OSError:
+#             # Don't care if was not deleted because it does not exist
+#             pass
